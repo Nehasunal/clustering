@@ -1,0 +1,11 @@
+# IDE files & directories
+.vscode
+node_modules/
+# .eslintrc.json
+# .env
+
+# vscode history plugin files
+.history
+
+# package-locks
+package-lock.json
