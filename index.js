@@ -6,9 +6,10 @@ const { fork } = require('child_process'); // Import child processes
 
 const PORT = process.env.PORT || 3000;
 
-if (cluster.isMaster) {
-    // Get the number of CPU cores
-    const numCPUs = os.cpus().length;
+// Get the number of CPU cores
+const numCPUs = os.cpus().length;
+
+if (cluster.isMaster) {   
 
     console.log(`Master ${process.pid} is running`);
 
