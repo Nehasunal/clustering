@@ -1,6 +1,7 @@
 const cluster = require('cluster');
 const os = require('os');
 const express = require('express');
+const { Worker } = require('worker_threads'); // Import worker threads
 
 const PORT = process.env.PORT || 3000;
 
@@ -23,7 +24,6 @@ if (cluster.isMaster) {
 
 } else {
     // This block runs for each worker
-
     const app = express();
 
     // Middleware to log which worker is handling the request
@@ -32,7 +32,26 @@ if (cluster.isMaster) {
         next();
     });
 
-    // Define a simple route
+    // Route using worker thread
+    app.get('/heavy-task', (req, res) => {
+        const worker = new Worker('./worker.js'); // Create a new worker thread
+
+        worker.on('message', (message) => {
+            res.send(`Worker thread result: ${message}`);
+        });
+
+        worker.on('error', (err) => {
+            res.status(500).send(`Worker thread error: ${err.message}`);
+        });
+
+        worker.on('exit', (code) => {
+            if (code !== 0) {
+                console.error(`Worker thread stopped with exit code ${code}`);
+            }
+        });
+    });
+
+    // Basic route
     app.get('/', (req, res) => {
         res.send(`Hello from worker ${process.pid}`);
     });
