@@ -2,6 +2,7 @@ const cluster = require('cluster');
 const os = require('os');
 const express = require('express');
 const { Worker } = require('worker_threads'); // Import worker threads
+const { fork } = require('child_process'); // Import child processes
 
 const PORT = process.env.PORT || 3000;
 
@@ -47,6 +48,25 @@ if (cluster.isMaster) {
         worker.on('exit', (code) => {
             if (code !== 0) {
                 console.error(`Worker thread stopped with exit code ${code}`);
+            }
+        });
+    });
+
+     // Route using child process
+     app.get('/child-process', (req, res) => {
+        const child = fork('./childprocess.js'); // Fork a new child process
+
+        child.on('message', (message) => {
+            res.send(`Child process result: ${message}`);
+        });
+
+        child.on('error', (err) => {
+            res.status(500).send(`Child process error: ${err.message}`);
+        });
+
+        child.on('exit', (code) => {
+            if (code !== 0) {
+                console.error(`Child process stopped with exit code ${code}`);
             }
         });
     });
